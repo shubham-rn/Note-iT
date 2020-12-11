@@ -7,11 +7,14 @@ import os
 from copy import deepcopy
 import webbrowser as wb
 import datetime
+import time
 import speech_recognition as sr
 import pyttsx3
 import random
 from plyer import notification
 import threading
+from tkcalendar import *
+
 
 # global variable declaration
 is_speaking = False
@@ -113,10 +116,21 @@ def searchBing():
 def viewHelp():
 
     wb.open("https://www.bing.com/search?q=get+help+with+notepad+in+windows+10&filters=guid:%224466414-en-dia%22%20lang:%22en%22&form=T00032&ocid=HelpPane-BingIA")
+    # wb.open("https://github.com/shubham-rn/Note-iT/blob/master/README.md")
+    # wb.open("file:///C:/Users/ShubhamN/Desktop/test.html")
 
 def about():
-    tmsg.showinfo("About NOTE-iT", "NOTE-iT IS UNDER DEVELOPMENT")
-
+    # tmsg.showinfo("About NOTE-iT", "NOTE-iT IS UNDER DEVELOPMENT")
+    abt = Tk()
+    abt.title("About Note-iT")
+    abt.geometry("400x100")
+    l1 = Label(abt, text="Note-iT version 1.0.1")
+    l2 = Label(abt, text="")
+    l1.pack()
+    l2.pack()
+    b1 = Button(abt, text="Ok", command=abt.destroy)
+    b1.pack(side=BOTTOM, anchor="se")
+    abt.mainloop()
 
 def setDark():
     global TextArea
@@ -136,8 +150,9 @@ def callstart(event):
     t1.start()
 
 def callstop(event):
-    t2 = threading.Thread(target=stopSpeak)
-    t2.start()
+    # t2 = threading.Thread(target=stopSpeak)
+    # t2.start()
+    stopSpeak()
 
 def startSpeak():
     global is_speaking
@@ -156,12 +171,33 @@ def stopSpeak():
     global r
     is_speaking = False
     try:
-        text = ' ' + r.recognize_google(audio, language="en-in")
+        text = ' ' + r.recognize_google(audio)
         TextArea.insert(INSERT, text)
     except:
         engine.say("Sorry could not recognize what you said")
         engine.runAndWait()
     # print("stopped speaking")
+
+def callstt():
+    # engine.say("speak anything")
+    # engine.runAndWait()
+    t1 = threading.Thread(target=stt)
+    t1.start()
+
+
+def stt():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        audio = r.listen(source)
+        try:
+            text = ' ' + r.recognize_google(audio)
+            # print("You said : {}".format(text))
+            TextArea.insert(INSERT, text)
+        except:
+            # print("Sorry could not recognize what you said")
+            engine.say("Sorry could not recognize what you said")
+            engine.runAndWait()
+
 
 def startRead():
     voices = engine.getProperty('voices')
@@ -298,6 +334,22 @@ def reminderWindow():
     b1.grid(row=2, column=0, padx=2)
     top.mainloop()
 
+def set_reminder():
+    def grab_date():
+        l1.config(text="reminder is set for " + cal.get_date() + " at " + datetime.datetime.now().strftime("%H:%M:%S"))
+
+    rem = Tk()
+    rem.geometry("540x380")
+
+    cal = Calendar(rem, selectmode="day", year=2020, month=5, day=22)
+    cal.pack(pady=20, fill=BOTH, expand=True)
+    b1 = Button(rem, text="set", command=grab_date)
+    b1.pack(pady=20, side=BOTTOM, anchor="sw")
+    l1 = Label(rem, text="")
+    l1.pack(pady=20)
+
+    rem.mainloop()
+
 
 
 if __name__ == '__main__':
@@ -317,14 +369,14 @@ if __name__ == '__main__':
     p2 = photo_2.subsample(10, 10)
     photo_3 = PhotoImage(file="photo3.png")
     p3 = photo_3.subsample(41, 41)
-    b1 = Button(f1, image=p1, compound=CENTER, width=1)
-    b1.bind('<ButtonPress-1>', callstart)
-    b1.bind('<ButtonRelease-1>', callstop)
+    b1 = Button(f1, image=p1, compound=CENTER, width=1, command=callstt)
+    # b1.bind('<ButtonPress-1>', callstart)
+    # b1.bind('<ButtonRelease-1>', callstop)
     b2 = Button(f1, image=p2, compound=CENTER, width=1, command=startRead)
-    b3 = Button(f1, image=p3, compound=CENTER, width=1, command=reminderWindow)
+    # b3 = Button(f1, image=p3, compound=CENTER, width=1, command=reminderWindow)
     b1.pack(side=LEFT, anchor="e")
     b2.pack(side=LEFT, anchor="e")
-    b3.pack(side=LEFT, anchor="e")
+    # b3.pack(side=LEFT, anchor="e")
 
     # frame for listbox
     f2 = Frame(root, borderwidth=6, relief=SUNKEN)
@@ -373,7 +425,7 @@ if __name__ == '__main__':
     FileMenu = Menu(MenuBar, tearoff=0)
     # To open new file
     FileMenu.add_command(label="New", command=newFile)
-    FileMenu.add_command(label="New Window", command=newWindow)
+    # FileMenu.add_command(label="New Window", command=newWindow)
     # To Open already existing file
     FileMenu.add_command(label="Open", command=openFile)
 
@@ -407,7 +459,7 @@ if __name__ == '__main__':
 
     # Format menu starts
     FormatMenu = Menu(MenuBar, tearoff=0)
-    FormatMenu.add_command(label="Font")
+    # FormatMenu.add_command(label="Font")
     FormatMenu.add_command(label="Text Color", command=chooseColor_fg)
     FormatMenu.add_command(label="Background Color", command=chooseColor_bg)
     MenuBar.add_cascade(label="Format", menu=FormatMenu)
@@ -428,6 +480,7 @@ if __name__ == '__main__':
     ModeMenu.add_command(label="dark", command=setDark)
     ModeMenu.add_command(label="light", command=setLight)
     OptionMenu.add_cascade(label="Mode", menu=ModeMenu)
+    OptionMenu.add_command(label="set reminder", command=set_reminder)
     MenuBar.add_cascade(label="Option", menu=OptionMenu)
     # option menu ends
 
