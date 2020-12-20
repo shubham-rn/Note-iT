@@ -14,6 +14,7 @@ import random
 from plyer import notification
 import threading
 from tkcalendar import *
+import sqlite3
 
 
 # global variable declaration
@@ -24,6 +25,8 @@ engine = pyttsx3.init()
 engine.setProperty('rate', 125)
 tasks = []
 
+conn = sqlite3.connect("listboxapp.db")
+c = conn.cursor()
 
 def newFile():
     global file
@@ -115,9 +118,9 @@ def searchBing():
 
 def viewHelp():
 
-    wb.open("https://www.bing.com/search?q=get+help+with+notepad+in+windows+10&filters=guid:%224466414-en-dia%22%20lang:%22en%22&form=T00032&ocid=HelpPane-BingIA")
+    # wb.open("https://www.bing.com/search?q=get+help+with+notepad+in+windows+10&filters=guid:%224466414-en-dia%22%20lang:%22en%22&form=T00032&ocid=HelpPane-BingIA")
     # wb.open("https://github.com/shubham-rn/Note-iT/blob/master/README.md")
-    # wb.open("file:///C:/Users/ShubhamN/Desktop/test.html")
+    wb.open("file:///C:/Users/ShubhamN/Desktop/test.html")
 
 def about():
     # tmsg.showinfo("About NOTE-iT", "NOTE-iT IS UNDER DEVELOPMENT")
@@ -224,42 +227,96 @@ def clear_listbox():
 
 
 def add_task():
+    conn = sqlite3.connect("listboxapp.db")
+    c = conn.cursor()
+
    # get the task to add
     task = txt_input.get()
+
     # make sure the task is not empty
     if task != "":
+        c.execute("INSERT INTO listbox VALUES(:task)",
+                  {
+                      'task': txt_input.get()
+                  })
+        conn.commit()
+        conn.close()
         # append to the list
-        tasks.append(task)
+        # tasks.append(task)
         # update the listbox
-        update_listbox()
+        # update_listbox()
     else:
         lbl_display["text"] = "please enter a task"
     txt_input.delete(0, END)
 
+def display_tasks():
+    conn = sqlite3.connect("listboxapp.db")
+    c = conn.cursor()
+
+    c.execute("SELECT *, oid FROM listbox")
+    records = c.fetchall()
+    # print(records)
+    if len(records) != 0:
+        tasks.clear()
+        for record in records:
+            task = record[0] + " " + "oid=" + str(record[1])
+            tasks.append(task)
+        update_listbox()
+        tasks.clear()
+        lbl_display["text"] = ""
+        conn.commit()
+        conn.close()
+    else:
+        lbl_display["text"] = "listbox is empty"
+
 def del_all():
-    global tasks
-    if len(tasks) == 0:
+    conn = sqlite3.connect("listboxapp.db")
+    c = conn.cursor()
+    c.execute("SELECT *, oid FROM listbox")
+    records = c.fetchall()
+    # print(records)
+
+    if len(records) == 0:
         tmsg.showinfo("Info", "The List is Empty")
     else:
         confirmed = tmsg.askyesno("please confirm", "do you really want to delete all?")
         if confirmed == True:
-            # since we are changing the list we need to globalize it
+            c.execute("DELETE from listbox")
+            tasks.clear()
+            clear_listbox()
+            conn.commit()
+            conn.close()
 
-            # clear the tasks list
-            tasks = []
-            # update the listbox
-            update_listbox()
 
 def del_one():
-    if len(tasks) == 0:
-        # update the display label
-        lbl_display["text"] = "list is empty"
-    # get the text of currently selected item
-    task = lb_tasks.get(ANCHOR)     # OR task = lb_tasks.get("active")
-    if task in tasks:
-        tasks.remove(task)
-    # update the listbox
-    update_listbox()
+    try:
+        conn = sqlite3.connect("listboxapp.db")
+        c = conn.cursor()
+        c.execute("SELECT *, oid FROM listbox")
+        records = c.fetchall()
+        # print(records)
+
+        if len(records) == 0:
+            # update the display label
+            lbl_display["text"] = "list is empty"
+        else:
+            # get the text of currently selected item
+            task = lb_tasks.get(ANCHOR)     # OR task = lb_tasks.get("active")
+            # print(type(task))
+            # print(task)
+            c.execute("DELETE from listbox WHERE oid= " + task[-1])
+            c.execute("SELECT *, oid FROM listbox")
+            records = c.fetchall()
+            tasks.clear()
+            for record in records:
+                task = record[0] + " " + "oid=" + str(record[1])
+                tasks.append(task)
+            update_listbox()
+            tasks.clear()
+            conn.commit()
+            conn.close()
+    except:
+        pass
 
 
 def sort_asc():
@@ -285,22 +342,39 @@ def sort_desc():
 
 def choose_random():
     # choose a random task
+    conn = sqlite3.connect("listboxapp.db")
+    c = conn.cursor()
+    c.execute("SELECT *, oid FROM listbox")
+    records = c.fetchall()
+    # print(records)
 
-    if len(tasks) == 0:
+    if len(records) == 0:
         # update the display label
-        lbl_display["text"] = "list is empty"
+        lbl_display["text"] = "listbox is empty"
     else:
-        task = random.choice(tasks)
+        for record in records:
+            task = record[0]
+            tasks.append(task)
+
+        task = str(random.choice(tasks))
+        # print(type(task))
+        # print(task)
         lbl_display["text"] = task
 
 
 def show_number_of_tasks():
+    conn = sqlite3.connect("listboxapp.db")
+    c = conn.cursor()
+    c.execute("SELECT *, oid FROM listbox")
+    records = c.fetchall()
     # get the number of tasks
-    number_of_tasks = len(tasks)
+    number_of_tasks = len(records)
     # create and format the message
-    msg = "number of tasks %s" %number_of_tasks
+    msg = "number of tasks: %s" %number_of_tasks
     # display the message
     lbl_display["text"] = msg
+    conn.commit()
+    conn.close()
 
 # reminder functions
 def notif(title, message, e1, e2):
@@ -397,10 +471,12 @@ if __name__ == '__main__':
     btn_del_all.pack()
     btn_del_one = Button(f2, text="delete one", width=20, command=del_one)
     btn_del_one.pack()
-    btn_sort_asc = Button(f2, text="sort asc", width=20, command=sort_asc)
-    btn_sort_asc.pack()
-    btn_sort_desc = Button(f2, text="sort desc", width=20, command=sort_desc)
-    btn_sort_desc.pack()
+    btn_display_tasks = Button(f2, text="display tasks", width=20, command=display_tasks)
+    btn_display_tasks.pack()
+    # btn_sort_asc = Button(f2, text="sort asc", width=20, command=sort_asc)
+    # btn_sort_asc.pack()
+    # btn_sort_desc = Button(f2, text="sort desc", width=20, command=sort_desc)
+    # btn_sort_desc.pack()
     btn_choose_random = Button(f2, text="choose random", width=20, command=choose_random)
     btn_choose_random.pack()
     btn_number_of_tasks = Button(f2, text="number of tasks", width=20, command=show_number_of_tasks)
@@ -491,5 +567,8 @@ if __name__ == '__main__':
     ScrollV.pack(side=RIGHT, fill=Y)
     ScrollV.config(command=TextArea.yview)
     TextArea.config(yscrollcommand=ScrollV.set)
+
+    conn.commit()
+    conn.close()
 
     root.mainloop()

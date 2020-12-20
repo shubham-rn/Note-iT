@@ -83,7 +83,7 @@ def del_one():
         c.execute("DELETE from listbook WHERE oid= " + e3.get())
         c.execute("SELECT *, oid FROM listbook")
         records = c.fetchall()
-        # print(records)
+        print(records)
 
         tasks.clear()
         for record in records:
