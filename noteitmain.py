@@ -13,8 +13,9 @@ import pyttsx3
 import random
 from plyer import notification
 import threading
-from tkcalendar import *
+# from tkcalendar import *
 import sqlite3
+
 
 
 # global variable declaration
@@ -116,11 +117,12 @@ def chooseColor_bg():
 def searchBing():
     wb.open("https://www.bing.com/?scope=web&mkt=en-IN")
 
-def viewHelp():
 
-    # wb.open("https://www.bing.com/search?q=get+help+with+notepad+in+windows+10&filters=guid:%224466414-en-dia%22%20lang:%22en%22&form=T00032&ocid=HelpPane-BingIA")
-    # wb.open("https://github.com/shubham-rn/Note-iT/blob/master/README.md")
-    wb.open("file:///C:/Users/ShubhamN/Desktop/test.html")
+
+def viewHelp():
+      # wb.open("https://github.com/shubham-rn/Note-iT/blob/master/README.md")
+      wb.open("D:\html programs\html project\project1\index.html")
+
 
 def about():
     # tmsg.showinfo("About NOTE-iT", "NOTE-iT IS UNDER DEVELOPMENT")
@@ -128,12 +130,14 @@ def about():
     abt.title("About Note-iT")
     abt.geometry("400x100")
     l1 = Label(abt, text="Note-iT version 1.0.1")
-    l2 = Label(abt, text="")
+    l2 = Label(abt, text="© Boss Tech 2020")
     l1.pack()
     l2.pack()
     b1 = Button(abt, text="Ok", command=abt.destroy)
     b1.pack(side=BOTTOM, anchor="se")
     abt.mainloop()
+
+
 
 def setDark():
     global TextArea
@@ -408,21 +412,21 @@ def reminderWindow():
     b1.grid(row=2, column=0, padx=2)
     top.mainloop()
 
-def set_reminder():
-    def grab_date():
-        l1.config(text="reminder is set for " + cal.get_date() + " at " + datetime.datetime.now().strftime("%H:%M:%S"))
-
-    rem = Tk()
-    rem.geometry("540x380")
-
-    cal = Calendar(rem, selectmode="day", year=2020, month=5, day=22)
-    cal.pack(pady=20, fill=BOTH, expand=True)
-    b1 = Button(rem, text="set", command=grab_date)
-    b1.pack(pady=20, side=BOTTOM, anchor="sw")
-    l1 = Label(rem, text="")
-    l1.pack(pady=20)
-
-    rem.mainloop()
+# def set_reminder():
+#     def grab_date():
+#         l1.config(text="reminder is set for " + cal.get_date() + " at " + datetime.datetime.now().strftime("%H:%M:%S"))
+#
+#     rem = Tk()
+#     rem.geometry("540x380")
+#
+#     cal = Calendar(rem, selectmode="day", year=2020, month=5, day=22)
+#     cal.pack(pady=20, fill=BOTH, expand=True)
+#     b1 = Button(rem, text="set", command=grab_date)
+#     b1.pack(pady=20, side=BOTTOM, anchor="sw")
+#     l1 = Label(rem, text="")
+#     l1.pack(pady=20)
+#
+#     rem.mainloop()
 
 
 
@@ -556,7 +560,7 @@ if __name__ == '__main__':
     ModeMenu.add_command(label="dark", command=setDark)
     ModeMenu.add_command(label="light", command=setLight)
     OptionMenu.add_cascade(label="Mode", menu=ModeMenu)
-    OptionMenu.add_command(label="set reminder", command=set_reminder)
+    # OptionMenu.add_command(label="set reminder", command=set_reminder)
     MenuBar.add_cascade(label="Option", menu=OptionMenu)
     # option menu ends
 
