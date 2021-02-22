@@ -28,12 +28,18 @@ class Window(Tk):
         self.wm_iconbitmap("ai1.ico")
         self.geometry("580x644")
 
+        self.create_toolbar()
+        self.create_listbox()
         self.create_menubar()
+
+
 
 
 
     def createbutton(self, inptext):
         Button(text=inptext, command=self.click).pack()
+
+# -------------------------------------------------------------------------------------------------------------------
 
     def create_menubar(self):
         # Add TextArea
@@ -55,7 +61,7 @@ class Window(Tk):
         FileMenu = Menu(self.MenuBar, tearoff=0)
         # To open new file
         FileMenu.add_command(label="New", command=self.newFile)
-        # FileMenu.add_command(label="New Window", command=newWindow)
+        FileMenu.add_command(label="New Window", command=Window.newWindow)
         # To Open already existing file
         FileMenu.add_command(label="Open", command=self.openFile)
 
@@ -120,14 +126,74 @@ class Window(Tk):
         self.ScrollV.config(command=self.TextArea.yview)
         self.TextArea.config(yscrollcommand=self.ScrollV.set)
 
+# --------------------------------------------------------------------------------------------------------------------
+
+    def create_toolbar(self):
+        f1 = Frame(self)
+        f1.pack(side=TOP, fill=X)
+        # adding text to speech and vice-versa buttons to tool bar
+        photo_1 = PhotoImage(file="photo1.png")
+        self.p1 = photo_1.subsample(10, 10)
+        photo_2 = PhotoImage(file="photo2.png")
+        self.p2 = photo_2.subsample(10, 10)
+        photo_3 = PhotoImage(file="photo3.png")
+        self.p3 = photo_3.subsample(41, 41)
+        b1 = Button(f1, image=self.p1, compound=CENTER, width=1, command=self.callstt)
+        # b1.bind('<ButtonPress-1>', callstart)
+        # b1.bind('<ButtonRelease-1>', callstop)
+        b2 = Button(f1, image=self.p2, compound=CENTER, width=1, command=self.startRead)
+        b3 = Button(f1, image=self.p3, compound=CENTER, width=1, command=self.reminderWindow)
+        b1.pack(side=LEFT, anchor="e")
+        b2.pack(side=LEFT, anchor="e")
+        b3.pack(side=LEFT, anchor="e")
+# --------------------------------------------------------------------------------------------------------------------
+
+    def create_listbox(self):
+        # frame for listbox
+        f2 = Frame(self, borderwidth=6, relief=SUNKEN)
+        f2.pack(side=LEFT, fill=Y)
+
+        lbl_title = Label(f2, text=" To Do List ")
+        lbl_title.pack()
+
+        lbl_display = Label(f2, text="")
+        lbl_display.pack()
+
+        txt_input = Entry(f2, width=20)
+        txt_input.pack()
+
+        btn_add_task = Button(f2, text="Add Task", width=20)#, command=add_task)
+        btn_add_task.pack()
+        btn_del_all = Button(f2, text="delete all", width=20)#, command=del_all)
+        btn_del_all.pack()
+        btn_del_one = Button(f2, text="delete one", width=20)#, command=del_one)
+        btn_del_one.pack()
+        btn_display_tasks = Button(f2, text="display tasks", width=20)#, command=display_tasks)
+        btn_display_tasks.pack()
+        # btn_sort_asc = Button(f2, text="sort asc", width=20, command=sort_asc)
+        # btn_sort_asc.pack()
+        # btn_sort_desc = Button(f2, text="sort desc", width=20, command=sort_desc)
+        # btn_sort_desc.pack()
+        btn_choose_random = Button(f2, text="choose random", width=20)#, command=choose_random)
+        btn_choose_random.pack()
+        btn_number_of_tasks = Button(f2, text="number of tasks", width=20)#, command=show_number_of_tasks)
+        btn_number_of_tasks.pack()
+        # btn_exit = Button(f2, text="Exit", width=20, command=exit)
+        # btn_exit.pack()
+
+        lb_tasks = Listbox(f2, height=20)
+        lb_tasks.pack()
+
 # ---------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
+
 
     def newFile(self):
         self.title("Untitled - NOTE-iT")
         Window.file = None
         self.TextArea.delete(1.0, END)
 
-    def newWindow(self):
+    def newWindow():
         w1 = Window()
         w1.mainloop()
 
@@ -163,7 +229,7 @@ class Window(Tk):
         else:
             # Save the file
             f = open(Window.file, "w")
-            f.write(TextArea.get(1.0, END))
+            f.write(self.TextArea.get(1.0, END))
             f.close()
 
     def quitApp(self):
@@ -234,6 +300,14 @@ class Window(Tk):
         self.TextArea.config(insertbackground="black")
 
 
+    def callstt(self):
+        pass
+
+    def startRead(self):
+        pass
+
+    def reminderWindow(self):
+        pass
 
 
 
